@@ -19,7 +19,14 @@ module.exports = {
       content: {
         type: Sequelize.TEXT,
       },
-      writer_id: {
+      from_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: "users",
+          key: "id",
+        },
+      },
+      to_id: {
         type: Sequelize.INTEGER,
         references: {
           model: "users",

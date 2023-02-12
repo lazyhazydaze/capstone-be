@@ -11,11 +11,11 @@ module.exports = (sequelize, DataTypes) => {
       this.belongsToMany(models.interest, {
         through: "user_interests",
       });
-      this.hasMany(models.friendrequest, {
+      this.hasMany(models.chatrequest, {
         as: "sender",
         foreignKey: "sender_id",
       });
-      this.hasMany(models.friendrequest, {
+      this.hasMany(models.chatrequest, {
         as: "recipient",
         foreignKey: "recipient_id",
       });
@@ -28,8 +28,12 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "user2_id",
       });
       this.hasMany(models.message, {
-        as: "writer",
-        foreignKey: "writer_id",
+        as: "from",
+        foreignKey: "from_id",
+      });
+      this.hasMany(models.message, {
+        as: "to",
+        foreignKey: "to_id",
       });
       this.hasMany(models.meetup, {
         as: "author",

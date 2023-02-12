@@ -39,7 +39,9 @@ module.exports = (sequelize, DataTypes) => {
       datetime: { type: DataTypes.DATE },
       location: { type: DataTypes.STRING },
       comment: { type: DataTypes.TEXT },
+      pending: { type: DataTypes.BOOLEAN },
       accepted: { type: DataTypes.BOOLEAN },
+      rejected: { type: DataTypes.BOOLEAN },
     },
     {
       sequelize,
