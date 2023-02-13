@@ -13,8 +13,12 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "chatroom_id",
       });
       this.belongsTo(models.user, {
-        as: "writer",
-        foreignKey: "writer_id",
+        as: "from",
+        foreignKey: "from_id",
+      });
+      this.belongsTo(models.user, {
+        as: "to",
+        foreignKey: "to_id",
       });
     }
   }
@@ -28,7 +32,14 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
       content: { type: DataTypes.TEXT },
-      writer_id: {
+      from_id: {
+        type: DataTypes.INTEGER,
+        references: {
+          model: "user",
+          key: "id",
+        },
+      },
+      to_id: {
         type: DataTypes.INTEGER,
         references: {
           model: "user",

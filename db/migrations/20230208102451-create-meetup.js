@@ -38,7 +38,13 @@ module.exports = {
       comment: {
         type: Sequelize.TEXT,
       },
+      pending: {
+        type: Sequelize.BOOLEAN,
+      },
       accepted: {
+        type: Sequelize.BOOLEAN,
+      },
+      rejected: {
         type: Sequelize.BOOLEAN,
       },
       created_at: {

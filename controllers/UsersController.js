@@ -6,8 +6,7 @@ class UsersController extends BaseController {
     this.interestModel = interestModel;
   }
 
-  // create user profile, or if user profile exists, get user profile
-  // how do i add the user interests to this one?
+  // create one user profile, or if user profile already exists, get one user profile
 
   async createOrGetUser(req, res) {
     try {
@@ -56,8 +55,21 @@ class UsersController extends BaseController {
     }
   }
 
+  // note: for user and interest, have to do it as transaction. if the interest did not exist, then cannot create user also.
+
   // edit user profile details
   // delete user profile details
+
+  // retrieve recommendations - hardcoded for now as 4 random users
+  async getRecommendations(req, res) {
+    try {
+      const output = await this.model.findAll();
+      return res.json(output);
+    } catch (err) {
+      console.log(err);
+      return res.status(400).json({ error: true, msg: err });
+    }
+  }
 }
 
 module.exports = UsersController;

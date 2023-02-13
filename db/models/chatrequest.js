@@ -1,7 +1,7 @@
 "use strict";
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
-  class FriendRequest extends Model {
+  class ChatRequest extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
   }
-  FriendRequest.init(
+  ChatRequest.init(
     {
       sender_id: {
         type: DataTypes.INTEGER,
@@ -34,9 +34,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: "friendrequest",
+      modelName: "chatrequest",
       underscored: true,
     }
   );
-  return FriendRequest;
+  return ChatRequest;
 };
