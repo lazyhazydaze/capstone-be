@@ -10,8 +10,6 @@ class UsersRouter {
 
     router.get("/", this.controller.getAll.bind(this.controller));
 
-    router.post("/", this.controller.createOrGetUser.bind(this.controller));
-
     // Sign Up
     router.post("/", this.controller.signUp.bind(this.controller));
 

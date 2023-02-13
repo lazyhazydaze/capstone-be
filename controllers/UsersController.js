@@ -29,13 +29,14 @@ class UsersController extends BaseController {
         gender,
         yearofbirth,
         biography,
+        interests,
         online,
       } = req.body.user;
       if (!username) throw new FieldRequiredError(`A username`);
       if (!email) throw new FieldRequiredError(`An email`);
       if (!password) throw new FieldRequiredError(`A password`);
 
-      const userExists = await User.findOne({
+      const userExists = await this.model.findOne({
         where: { email: req.body.user.email },
       });
       if (userExists) throw new AlreadyTakenError("Email", "try logging in");
@@ -50,6 +51,7 @@ class UsersController extends BaseController {
         gender: gender,
         yearofbirth: yearofbirth,
         password: await bcryptHash(password),
+        interests:interests,
         online: online,
       });
 

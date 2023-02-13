@@ -24,7 +24,7 @@ module.exports = {
         type: Sequelize.STRING,
       },
       profilepic: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(1000000),
       },
       location: {
         type: Sequelize.STRING,
