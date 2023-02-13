@@ -9,14 +9,12 @@ const socketIO = require("socket.io");
 const UsersRouter = require("./routers/UsersRouter");
 const InterestsRouter = require("./routers/InterestsRouter");
 const ChatsRouter = require("./routers/ChatsRouter");
-const MessagesRouter = require("./routers/MessagesRouter");
 const MeetupsRouter = require("./routers/MeetupsRouter");
 
 // Step 2. importing Controllers
 const UsersController = require("./controllers/UsersController");
 const InterestsController = require("./controllers/InterestsController");
 const ChatsController = require("./controllers/ChatsController");
-const MessagesController = require("./controllers/MessagesController");
 const MeetupsController = require("./controllers/MeetupsController");
 
 // Step 3. importing DB
@@ -27,14 +25,12 @@ const { user, interest, chatrequest, chat, message, meetup } = db;
 const usersController = new UsersController(user, interest);
 const interestsController = new InterestsController(interest);
 const chatsController = new ChatsController(chatrequest, user, chat);
-const messagesController = new MessagesController(message, user);
 const meetupsController = new MeetupsController(meetup, chat);
 
 // Step 5.initializing Routers -> note the lowercase for the first word
 const usersRouter = new UsersRouter(usersController).routes();
 const interestsRouter = new InterestsRouter(interestsController).routes();
 const chatsRouter = new ChatsRouter(chatsController).routes();
-const messagesRouter = new MessagesRouter(messagesController).routes();
 const meetupsRouter = new MeetupsRouter(meetupsController).routes();
 
 const PORT = process.env.PORT || 8080;
@@ -47,7 +43,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use("/users", usersRouter);
 app.use("/interests", interestsRouter);
 app.use("/chats", chatsRouter);
-app.use("/messages", messagesRouter);
 app.use("/meetups", meetupsRouter);
 
 server = http.Server(app);
