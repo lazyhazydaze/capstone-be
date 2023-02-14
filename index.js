@@ -53,7 +53,7 @@ server.listen(PORT, () => {
 // Step 7. Socket
 const io = socketIO(server, {
   cors: {
-    origin: "http://localhost:8080",
+    origin: "http://localhost:8080", //front end client URL is 8080
   },
 });
 const { MessageStore } = require("./helper/messageStore");
@@ -72,16 +72,18 @@ io.use((socket, next) => {
   next();
 });
 
+// io.on connection is triggered once
+
 io.on("connection", async (socket) => {
   console.log("socket", socket);
   // persist session
   sessionStore.saveSession(socket.userID, true);
 
   // emit session details
-  socket.emit("session", {
-    userID: socket.userID,
-    username: socket.username,
-  });
+  // socket.emit("session", {
+  //   userID: socket.userID,
+  //   username: socket.username,
+  // });
 
   // join the "userID" room
   socket.join(socket.userID);
@@ -111,9 +113,10 @@ io.on("connection", async (socket) => {
       messages: messagesPerUser.get(session.id) || [],
     });
   });
+  console.log(users);
   socket.emit("users", users);
 
-  // notify existing users
+  // notify existing users that this user is online so the status can be updated (red to green colour)
   socket.broadcast.emit("user connected", {
     userID: socket.userID,
     username: socket.username,
@@ -121,19 +124,25 @@ io.on("connection", async (socket) => {
     messages: [],
   });
 
-  // forward the private message to the right recipient (and to other tabs of the sender)
-  socket.on("private message", ({ content, to, chatroomId }) => {
-    const message = {
-      content,
-      from: socket.userID,
-      to,
-      chatroomId,
-    };
-    socket.to(String(to)).to(socket.userID).emit("private message", message);
-    messageStore.saveMessage(message);
-  });
+  // this does 2 actions: 1. forward the private message to the right recipient (and to other tabs of the sender) 2. save the message into the db
+  socket.on(
+    "private message",
+    async ({ content, to_id, from_id, chatroom_id }) => {
+      const message = {
+        content,
+        from_id,
+        to_id,
+        chatroom_id,
+      };
+      messageStore.saveMessage(message);
+      socket
+        .to(String(message.to_id))
+        .to(String(message.from_id))
+        .emit("private message", message);
+    }
+  );
 
-  // notify users upon disconnection
+  // notify users upon disconnection so the status can change from green to red colour
   socket.on("disconnect", async () => {
     const matchingSockets = await io.in(socket.userID).allSockets();
     const isDisconnected = matchingSockets.size === 0;

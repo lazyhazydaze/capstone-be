@@ -24,7 +24,7 @@ class UsersController extends BaseController {
           gender,
           yearofbirth,
           biography,
-          selectedInterestIds,
+          selectedInterestIds, //array of ids [1,3,2]
         } = req.body;
         //user = await this.model.create(data);
         user = await this.model.create({

@@ -6,15 +6,15 @@ class MessageStore {
     this.messageModel = messageModel;
   }
 
-  saveMessage(message) {
+  async saveMessage(message) {
     // note: async-await not required since no need return stuff
-    const { content, from, to, chatroomId } = message;
+    const { content, from_id, to_id, chatroom_id } = message;
     console.log(message);
-    this.messageModel.create({
-      chatroom_id: chatroomId,
-      content: content,
-      from_id: from,
-      to_id: to,
+    return await this.messageModel.create({
+      chatroom_id,
+      content,
+      from_id,
+      to_id,
     });
   }
 
