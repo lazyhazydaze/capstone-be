@@ -51,7 +51,7 @@ class UsersController extends BaseController {
         gender: gender,
         yearofbirth: yearofbirth,
         password: await bcryptHash(password),
-        interests:interests,
+        interests: interests,
         online: online,
       });
 
@@ -68,7 +68,15 @@ class UsersController extends BaseController {
     try {
       const { user } = req.body;
 
-      const existentUser = await this.model.findOne({ where: { email: user.email } });
+      const existentUser = await this.model.findOne({
+        where: { email: user.email },
+      });
+
+      await this.model.update(
+        { online: true },
+        { where: { email: user.email } }
+      );
+
       if (!existentUser) throw new NotFoundError("Email", "sign in first");
 
       const pwd = await bcryptCompare(user.password, existentUser.password);
@@ -79,6 +87,22 @@ class UsersController extends BaseController {
       res.json({ user: existentUser });
     } catch (error) {
       next(error);
+    }
+  }
+
+  // How do I change online status ??
+
+  async signOut(req, res) {
+    try {
+      console.log(req.body.email)
+      // update the user's online status to false in the database
+      await this.model.update({ online: false }, { where: { email: req.body.email } });
+
+      // send a successful response
+      res.status(200).send({ message: "Logged out successfully." });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send({ message: "An error occurred while logging out." });
     }
   }
 

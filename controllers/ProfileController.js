@@ -14,7 +14,7 @@ class ProfileController extends BaseController {
 
     const profile = await this.model.findOne({
       where: { username: username || null },
-      attributes: { exclude: "email" },
+      // attributes: { exclude: "email" },
     });
     if (!profile) throw new NotFoundError("User profile");
 
