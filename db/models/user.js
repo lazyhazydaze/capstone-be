@@ -36,6 +36,16 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "author_id",
       });
     }
+
+    toJSON() {
+      return {
+        ...this.get(),
+        id: undefined,
+        password: undefined,
+        updatedAt: undefined,
+        createdAt: undefined,
+      };
+    }
   }
   User.init(
     {

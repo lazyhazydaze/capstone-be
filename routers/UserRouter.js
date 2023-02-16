@@ -9,6 +9,7 @@ class UserRouter {
   routes() {
 
     router.get("/", verifyToken, this.controller.currentUser.bind(this.controller));
+    router.put("/", verifyToken, this.controller.updateUser.bind(this.controller));
 
     return router;
   }
