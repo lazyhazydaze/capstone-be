@@ -52,6 +52,22 @@ class UserController extends BaseController {
   }
 };
 
+
+async getUserInterests(req, res) {
+  const { username } = req.params;
+  
+  // Retrieve the user and their associated interests
+  const user = await this.model.findOne({ where: { username } });
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+  const interests = await user.getInterests();
+  const interestNames = interests.map((interest) => interest.name);
+  
+  // Return the user interests in the API response
+  res.json({ interests: interestNames });
+}
+
 }
 
 module.exports = UserController;

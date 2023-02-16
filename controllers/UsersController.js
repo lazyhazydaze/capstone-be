@@ -55,6 +55,17 @@ class UsersController extends BaseController {
         online: online,
       });
 
+      // Associate interests with the new user
+      const interestModels = [];
+      for (const interest of interests) {
+        const [interestModel, created] = await this.interestModel.findOrCreate({
+          where: { name: interest.interest },
+          defaults: { self_skill: interest.self_skill },
+        });
+        interestModels.push(interestModel);
+      }
+      await newUser.setInterests(interestModels);
+
       newUser.dataValues.token = await jwtSign(newUser);
 
       res.status(201).json({ user: newUser });
@@ -105,59 +116,6 @@ class UsersController extends BaseController {
       res.status(500).send({ message: "An error occurred while logging out." });
     }
   }
-
-  // create user profile, or if user profile exists, get user profile
-  // how do i add the user interests to this one?
-
-  async createOrGetUser(req, res) {
-    try {
-      const { email } = req.body;
-      let user = await this.model.findAll({ where: { email: email } }); //foong discourages use of email, to use id instead
-      if (user.length == 0) {
-        // const data = { ...req.body }; //req.body will included selectedInterestIds also?
-        const {
-          username,
-          password,
-          email,
-          firstname,
-          profilepic,
-          location,
-          gender,
-          yearofbirth,
-          biography,
-          selectedInterestIds,
-        } = req.body;
-        //user = await this.model.create(data);
-        user = await this.model.create({
-          username,
-          password,
-          email,
-          firstname,
-          profilepic,
-          location,
-          gender,
-          yearofbirth,
-          biography,
-          online: true,
-        });
-        // retrieve selected interests
-        const selectedInterests = await this.interestModel.findAll({
-          where: {
-            id: selectedInterestIds,
-          },
-        });
-        // Associated new user with selected interests
-        await user.setInterests(selectedInterests);
-        return res.json(user);
-      }
-      return res.json(user[0]);
-    } catch (err) {
-      return res.status(400).json({ error: true, msg: err });
-    }
-  }
-
-  // edit user profile details
-  // delete user profile details
 }
 
 module.exports = UsersController;
