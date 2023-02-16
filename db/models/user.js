@@ -40,6 +40,16 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "author_id",
       });
     }
+
+    toJSON() {
+      return {
+        ...this.get(),
+        id: undefined,
+        password: undefined,
+        updatedAt: undefined,
+        createdAt: undefined,
+      };
+    }
   }
   User.init(
     {
@@ -47,7 +57,7 @@ module.exports = (sequelize, DataTypes) => {
       password: { type: DataTypes.STRING, allowNull: false },
       email: { type: DataTypes.STRING, allowNull: false, unique: true },
       firstname: { type: DataTypes.STRING, allowNull: false },
-      profilepic: { type: DataTypes.STRING },
+      profilepic: { type: DataTypes.STRING(1000000) },
       location: { type: DataTypes.STRING, allowNull: false },
       gender: { type: DataTypes.STRING, allowNull: false },
       yearofbirth: { type: DataTypes.INTEGER, allowNull: false },

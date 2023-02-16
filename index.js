@@ -1,21 +1,29 @@
 // require Express NPM library
 const express = require("express");
 const cors = require("cors");
+const bodyParser = require("body-parser");
 require("dotenv").config();
 const http = require("http");
 const socketIO = require("socket.io");
+
+// import middlewares
+const errorHandler = require("./middleware/errorHandler");
 
 // Step 1. importing Routers
 const UsersRouter = require("./routers/UsersRouter");
 const InterestsRouter = require("./routers/InterestsRouter");
 const ChatsRouter = require("./routers/ChatsRouter");
 const MeetupsRouter = require("./routers/MeetupsRouter");
+const UserRouter = require("./routers/UserRouter")
+const ProfileRouter = require("./routers/ProfileRouter")
 
 // Step 2. importing Controllers
 const UsersController = require("./controllers/UsersController");
+const UserController = require("./controllers/UserController");
 const InterestsController = require("./controllers/InterestsController");
 const ChatsController = require("./controllers/ChatsController");
 const MeetupsController = require("./controllers/MeetupsController");
+const ProfileController = require("./controllers/ProfileController")
 
 // Step 3. importing DB
 const db = require("./db/models/index");
@@ -23,27 +31,39 @@ const { user, interest, chatrequest, chat, message, meetup } = db;
 
 // Step 4. initializing Controllers -> note the lowercase for the first word
 const usersController = new UsersController(user, interest);
+const userController = new UserController(user);
 const interestsController = new InterestsController(interest);
 const chatsController = new ChatsController(chatrequest, user, chat);
 const meetupsController = new MeetupsController(meetup, chat);
+const profileController = new ProfileController(user);
 
 // Step 5.initializing Routers -> note the lowercase for the first word
 const usersRouter = new UsersRouter(usersController).routes();
+const userRouter = new UserRouter(userController).routes();
 const interestsRouter = new InterestsRouter(interestsController).routes();
 const chatsRouter = new ChatsRouter(chatsController).routes();
 const meetupsRouter = new MeetupsRouter(meetupsController).routes();
+const profileRouter = new ProfileRouter(profileController).routes();
 
 const PORT = process.env.PORT || 8080;
 const app = express();
 app.use(cors());
+app.use(bodyParser.json({ limit: "5mb" }));
+app.use(bodyParser.urlencoded({ limit: "5mb", extended: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // Step 6. using the routers
+app.use("/user", userRouter)
 app.use("/users", usersRouter);
 app.use("/interests", interestsRouter);
 app.use("/chats", chatsRouter);
 app.use("/meetups", meetupsRouter);
+app.use("/profile", profileRouter);
+app.get("*", (req, res) =>
+  res.status(404).json({ errors: { body: ["Not found"] } })
+);
+app.use(errorHandler);
 
 server = http.Server(app);
 server.listen(PORT, () => {

@@ -13,7 +13,14 @@ class UsersRouter {
     //router.get("/", this.controller.getAll.bind(this.controller));
 
 
-    router.post("/", this.controller.createOrGetUser.bind(this.controller));
+    // Sign Up
+    router.post("/", this.controller.signUp.bind(this.controller));
+
+    // Login
+    router.post("/login", this.controller.signIn.bind(this.controller));
+
+    // Sign Out
+    router.post("/logout", this.controller.signOut.bind(this.controller));
 
     return router;
   }
