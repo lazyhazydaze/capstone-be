@@ -8,7 +8,7 @@ class UsersRouter {
   routes() {
     router.get("/test", this.controller.test.bind(this.controller));
 
-    router.get("/", this.controller.getRecommendations.bind(this.controller));
+    // router.get("/", this.controller.getRecommendations.bind(this.controller));
 
     //router.get("/", this.controller.getAll.bind(this.controller));
 
