@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const verifyToken = require("../middleware/auth");
 
 class UsersRouter {
   constructor(controller) {
@@ -10,8 +11,7 @@ class UsersRouter {
 
     // router.get("/", this.controller.getRecommendations.bind(this.controller));
 
-    //router.get("/", this.controller.getAll.bind(this.controller));
-
+    router.get("/", this.controller.getAll.bind(this.controller));
 
     // Sign Up
     router.post("/", this.controller.signUp.bind(this.controller));
@@ -21,6 +21,9 @@ class UsersRouter {
 
     // Sign Out
     router.post("/logout", this.controller.signOut.bind(this.controller));
+
+    // Get Random Users
+    router.get("/random-users", verifyToken, this.controller.getRandomUsers.bind(this.controller));
 
     return router;
   }

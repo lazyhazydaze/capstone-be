@@ -1,5 +1,6 @@
 const { jwtSign } = require("../helpers/jwt");
 const { bcryptHash, bcryptCompare } = require("../helpers/bcrypt");
+const { Op, Sequelize } = require("sequelize");
 const {
   ValidationError,
   FieldRequiredError,
@@ -115,6 +116,23 @@ class UsersController extends BaseController {
     } catch (error) {
       console.error(error);
       res.status(500).send({ message: "An error occurred while logging out." });
+    }
+  }
+
+  async getRandomUsers(req, res) {
+    try {
+      const { location, id } = req.query;
+      const randomUsers = await this.model.findAll({
+        where: {
+          location: location,
+          id: {
+            [Op.ne]: id, // Exclude current user from the list of Random Users
+          },
+        },
+      });
+      res.json(randomUsers);
+    } catch (err) {
+      console.error(err);
     }
   }
 }
