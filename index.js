@@ -14,8 +14,8 @@ const UsersRouter = require("./routers/UsersRouter");
 const InterestsRouter = require("./routers/InterestsRouter");
 const ChatsRouter = require("./routers/ChatsRouter");
 const MeetupsRouter = require("./routers/MeetupsRouter");
-const UserRouter = require("./routers/UserRouter")
-const ProfileRouter = require("./routers/ProfileRouter")
+const UserRouter = require("./routers/UserRouter");
+const ProfileRouter = require("./routers/ProfileRouter");
 
 // Step 2. importing Controllers
 const UsersController = require("./controllers/UsersController");
@@ -23,7 +23,7 @@ const UserController = require("./controllers/UserController");
 const InterestsController = require("./controllers/InterestsController");
 const ChatsController = require("./controllers/ChatsController");
 const MeetupsController = require("./controllers/MeetupsController");
-const ProfileController = require("./controllers/ProfileController")
+const ProfileController = require("./controllers/ProfileController");
 
 // Step 3. importing DB
 const db = require("./db/models/index");
@@ -54,7 +54,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // Step 6. using the routers
-app.use("/user", userRouter)
+app.use("/user", userRouter);
 app.use("/users", usersRouter);
 app.use("/interests", interestsRouter);
 app.use("/chats", chatsRouter);
@@ -106,8 +106,8 @@ io.on("connection", async (socket) => {
   // });
 
   // join the "userID" room
-  socket.join(socket.userID);
-  console.log(socket.userID);
+  socket.join(String(socket.userID));
+  console.log("userID is", socket.userID, "and username is ", socket.username);
 
   // fetch existing users
   const users = [];
@@ -155,9 +155,10 @@ io.on("connection", async (socket) => {
         chatroom_id,
       };
       messageStore.saveMessage(message);
+      console.log("to id", message.to_id, " and from id", message.from_id)
       socket
-        .to(String(message.to_id))
         .to(String(message.from_id))
+        .to(String(message.to_id))
         .emit("private message", message);
     }
   );
