@@ -1,8 +1,116 @@
+const { Op } = require("sequelize");
+
 class ChatsController {
   constructor(model, userModel, chatModel) {
     this.model = model;
     this.userModel = userModel;
     this.chatModel = chatModel;
+  }
+
+  async sendSwipe(req, res) {
+    const { senderId, recipientId, isRejected } = req.body;
+    try {
+      //Make sure they dont have an existing chat
+      const ifChatExist = await this.chatModel.findOne({
+        where: {
+          [Op.or]: [
+            { user1_id: senderId, user2_id: recipientId },
+            { user2_id: recipientId, user1_id: senderId },
+          ],
+        },
+      });
+      if (ifChatExist) {
+        return res.json(ifChatExist);
+      }
+
+      //isRejected = true
+      if (isRejected) {
+        const ifExist = await this.model.findOne({
+          where: {
+            [Op.or]: [
+              { sender_id: senderId, recipient_id: recipientId },
+              { sender_id: recipientId, recipient_id: senderId },
+            ],
+          },
+        });
+        if (ifExist) {
+          const response = await ifExist.update({
+            is_rejected: true,
+            updated_at: new Date(),
+          });
+          return res.json(response);
+        }
+        const response = await this.model.create({
+          sender_id: senderId,
+          recipient_id: recipientId,
+          is_rejected: true,
+          updated_at: new Date(),
+          created_at: new Date(),
+        });
+
+        return res.json(response);
+      }
+      //isRejected = false
+      else {
+        const ifOtherPartyOrMeReject = await this.model.findOne({
+          where: {
+            [Op.or]: [
+              {
+                sender_id: senderId,
+                recipient_id: recipientId,
+                is_rejected: true,
+              },
+              {
+                sender_id: recipientId,
+                recipient_id: senderId,
+                is_rejected: true,
+              },
+            ],
+          },
+        });
+        if (ifOtherPartyOrMeReject) {
+          return res.json(ifOtherPartyOrMeReject);
+        }
+        const didISendARequest = await this.model.findOne({
+          where: {
+            sender_id: senderId,
+            recipient_id: recipientId,
+            is_rejected: false,
+          },
+        });
+        if (didISendARequest) {
+          return res.json(didISendARequest);
+        }
+        const didOtherPartySendARequest = await this.model.findOne({
+          where: {
+            sender_id: recipientId,
+            recipient_id: senderId,
+            is_rejected: false,
+          },
+        });
+        if (didOtherPartySendARequest) {
+          await didOtherPartySendARequest.destroy();
+          const newChat = await this.chatModel.create({
+            user1_id: senderId,
+            user2_id: recipientId,
+            title: "Helloworld",
+            updated_at: new Date(),
+            created_at: new Date(),
+          });
+          return res.json(newChat);
+        }
+        const response = await this.model.create({
+          sender_id: senderId,
+          recipient_id: recipientId,
+          is_rejected: false,
+          updated_at: new Date(),
+          created_at: new Date(),
+        });
+        return res.json(response);
+      }
+    } catch (err) {
+      return res.status(400).json({ error: true, msg: err });
+    }
   }
 
   // recommendations should take care of the following scenarios:

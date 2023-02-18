@@ -7,9 +7,16 @@ class ChatsRouter {
   }
   routes() {
     router.post(
+      "/swipe",
+      this.controller.sendSwipe.bind(this.controller)
+    );
+
+    router.post(
       "/request",
       this.controller.sendChatRequest.bind(this.controller)
     );
+
+
     router.get(
       "/requests-sent/sender/:senderId",
       this.controller.getAllRequestSent.bind(this.controller)

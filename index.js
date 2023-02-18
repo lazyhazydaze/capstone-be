@@ -38,7 +38,11 @@ const interestsController = new InterestsController(interest);
 const chatsController = new ChatsController(chatrequest, user, chat);
 const meetupsController = new MeetupsController(meetup, chat);
 const profileController = new ProfileController(user);
-const recommendationsController = new RecommendationsController(chat, chatrequest, userinterest);
+const recommendationsController = new RecommendationsController(
+  chat,
+  chatrequest,
+  userinterest
+);
 
 // Step 5.initializing Routers -> note the lowercase for the first word
 const usersRouter = new UsersRouter(usersController).routes();
@@ -162,7 +166,7 @@ io.on("connection", async (socket) => {
         chatroom_id,
       };
       messageStore.saveMessage(message);
-      console.log("to id", message.to_id, " and from id", message.from_id)
+      console.log("to id", message.to_id, " and from id", message.from_id);
       socket
         .to(String(message.from_id))
         .to(String(message.to_id))

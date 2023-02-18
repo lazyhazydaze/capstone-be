@@ -31,6 +31,10 @@ module.exports = (sequelize, DataTypes) => {
           key: "id",
         },
       },
+      is_rejected: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+      },
     },
     {
       sequelize,
