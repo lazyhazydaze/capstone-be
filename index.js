@@ -16,6 +16,7 @@ const ChatsRouter = require("./routers/ChatsRouter");
 const MeetupsRouter = require("./routers/MeetupsRouter");
 const UserRouter = require("./routers/UserRouter");
 const ProfileRouter = require("./routers/ProfileRouter");
+const RecommendationsRouter = require("./routers/RecoRouter");
 
 // Step 2. importing Controllers
 const UsersController = require("./controllers/UsersController");
@@ -24,10 +25,11 @@ const InterestsController = require("./controllers/InterestsController");
 const ChatsController = require("./controllers/ChatsController");
 const MeetupsController = require("./controllers/MeetupsController");
 const ProfileController = require("./controllers/ProfileController");
+const RecommendationsController = require("./controllers/RecoController");
 
 // Step 3. importing DB
 const db = require("./db/models/index");
-const { user, interest, chatrequest, chat, message, meetup } = db;
+const { user, interest, chatrequest, chat, message, meetup, userinterest } = db;
 
 // Step 4. initializing Controllers -> note the lowercase for the first word
 const usersController = new UsersController(user, interest);
@@ -36,6 +38,7 @@ const interestsController = new InterestsController(interest);
 const chatsController = new ChatsController(chatrequest, user, chat);
 const meetupsController = new MeetupsController(meetup, chat);
 const profileController = new ProfileController(user);
+const recommendationsController = new RecommendationsController(chat, chatrequest, userinterest);
 
 // Step 5.initializing Routers -> note the lowercase for the first word
 const usersRouter = new UsersRouter(usersController).routes();
@@ -44,6 +47,9 @@ const interestsRouter = new InterestsRouter(interestsController).routes();
 const chatsRouter = new ChatsRouter(chatsController).routes();
 const meetupsRouter = new MeetupsRouter(meetupsController).routes();
 const profileRouter = new ProfileRouter(profileController).routes();
+const recommendationsRouter = new RecommendationsRouter(
+  recommendationsController
+).routes();
 
 const PORT = process.env.PORT || 8080;
 const app = express();
@@ -60,6 +66,7 @@ app.use("/interests", interestsRouter);
 app.use("/chats", chatsRouter);
 app.use("/meetups", meetupsRouter);
 app.use("/profile", profileRouter);
+app.use("/recommendations", recommendationsRouter);
 app.get("*", (req, res) =>
   res.status(404).json({ errors: { body: ["Not found"] } })
 );
