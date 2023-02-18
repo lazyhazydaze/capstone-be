@@ -9,7 +9,11 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       this.belongsToMany(models.interest, {
-        through: "user_interests",
+        through: "userinterest",
+        foreignKey: "user_id",
+      });
+      this.hasMany(models.userinterest, {
+        foreignKey: "user_id",
       });
       this.hasMany(models.chatrequest, {
         as: "sender",
