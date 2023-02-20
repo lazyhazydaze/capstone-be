@@ -7,11 +7,16 @@ class RecoRouter {
   }
   routes() {
     router.get("/test", this.controller.test.bind(this.controller));
-    
+
     // get recommendations for user
     router.get(
-      "/:userid",
-      this.controller.getRecommendations.bind(this.controller)
+      "/interest/:userid",
+      this.controller.getInterestRecommendations.bind(this.controller)
+    );
+
+    router.get(
+      "/location/:userid",
+      this.controller.getLocationRecommendations.bind(this.controller)
     );
 
     return router;

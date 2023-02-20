@@ -2,10 +2,11 @@ const { Op } = require("sequelize");
 const { Sequelize } = require("../db/models");
 
 class RecoController {
-  constructor(chatModel, chatRequestModel, userInterestModel) {
+  constructor(chatModel, chatRequestModel, userInterestModel, userModel) {
     this.chatModel = chatModel;
     this.chatRequestModel = chatRequestModel;
     this.userInterestModel = userInterestModel;
+    this.userModel = userModel;
   }
 
   async test(req, res) {
@@ -18,8 +19,8 @@ class RecoController {
       return res.status(400).json({ error: true, msg: err });
     }
   }
-  // create new interest
-  async getRecommendations(req, res) {
+
+  async getInterestRecommendations(req, res) {
     const { userid } = req.params;
     try {
       const allInterest = await this.userInterestModel.findAll({
@@ -70,6 +71,9 @@ class RecoController {
       const allReco = await this.userInterestModel.findAll({
         attributes: [
           "user_id",
+          Sequelize.col("user.firstname"),
+          Sequelize.col("user.username"),
+          Sequelize.col("user.profilepic"),
           [
             Sequelize.fn("COUNT", Sequelize.col("userinterest.interest_id")),
             "InterestCount",
@@ -81,8 +85,82 @@ class RecoController {
             { [Op.not]: [{ user_id: userarray }] },
           ],
         },
-        group: ["user_id"],
+        group: [
+          "user_id",
+          Sequelize.col("user.firstname"),
+          Sequelize.col("user.username"),
+          Sequelize.col("user.profilepic"),
+        ],
         order: [["InterestCount", "DESC"]],
+        limit: 5,
+        include: [
+          {
+            attributes: [],
+            model: this.userModel,
+            required: true,
+          },
+        ],
+      });
+      console.log(allReco)
+      return res.json(allReco);
+    } catch (err) {
+      return res.status(400).json({ error: true, msg: err });
+    }
+  }
+
+  async getLocationRecommendations(req, res) {
+    const { userid } = req.params;
+    try {
+      const currentUser = await this.userModel.findByPk(userid);
+      const currentLocation = currentUser.location;
+
+      const userarray = [];
+      userarray.push(userid);
+      //Get all chats
+      const allChats = await this.chatModel.findAll({
+        where: { [Op.or]: [{ user1_id: userid }, { user2_id: userid }] },
+      });
+      allChats.forEach(({ user1_id, user2_id }) => {
+        if (!userarray.includes(user1_id)) {
+          userarray.push(user1_id);
+        }
+        if (!userarray.includes(user2_id)) {
+          userarray.push(user2_id);
+        }
+      });
+
+      //Get all chat request
+      //1. Sent from me (means i've seen this recommendation and responded to it)
+      //2. if the request has me inside and is rejected. (either party rejected, no point matching them)
+
+      const allChatRequest = await this.chatRequestModel.findAll({
+        where: {
+          [Op.or]: [
+            { sender_id: userid },
+            {
+              [Op.and]: [{ recipient_id: userid }, { is_rejected: true }],
+            },
+          ],
+        },
+      });
+
+      allChatRequest.forEach(({ sender_id, recipient_id }) => {
+        if (!userarray.includes(sender_id)) {
+          userarray.push(sender_id);
+        }
+        if (!userarray.includes(recipient_id)) {
+          userarray.push(recipient_id);
+        }
+      });
+
+      const allReco = await this.userModel.findAll({
+        attributes: ["id", "username", "email", "firstname", "location"],
+        where: {
+          [Op.and]: [
+            { location: currentLocation },
+            { [Op.not]: [{ id: userarray }] },
+          ],
+        },
         limit: 5,
       });
 
