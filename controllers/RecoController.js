@@ -68,40 +68,61 @@ class RecoController {
         }
       });
 
-      const allReco = await this.userInterestModel.findAll({
+      const allReco = await this.userModel.findAll({
         attributes: [
-          "user_id",
-          Sequelize.col("user.firstname"),
-          Sequelize.col("user.username"),
-          Sequelize.col("user.profilepic"),
-          [
-            Sequelize.fn("COUNT", Sequelize.col("userinterest.interest_id")),
-            "InterestCount",
-          ],
+          "id",
+          "username",
+          "firstname",
+          "email",
+          "location",
+          "gender",
+          [Sequelize.fn("COUNT", Sequelize.col("user.id")), "InterestCount"],
+          "profilepic",
         ],
-        where: {
-          [Op.and]: [
-            { interest_id: arrayInterest },
-            { [Op.not]: [{ user_id: userarray }] },
-          ],
-        },
-        group: [
-          "user_id",
-          Sequelize.col("user.firstname"),
-          Sequelize.col("user.username"),
-          Sequelize.col("user.profilepic"),
-        ],
-        order: [["InterestCount", "DESC"]],
-        limit: 5,
+        subQuery: false,
         include: [
           {
             attributes: [],
-            model: this.userModel,
+            model: this.userInterestModel,
+            where: {
+              [Op.and]: [
+                { interest_id: arrayInterest },
+                { [Op.not]: [{ user_id: userarray }] },
+              ],
+            },
             required: true,
           },
         ],
+        separate: true,
+        group: [Sequelize.col("user.id")],
+        order: [
+          ["InterestCount", "DESC"],
+          ["id", "ASC"],
+        ],
+        limit: 5,
       });
-      console.log(allReco)
+
+      // const allRecoOriginal = await this.userInterestModel.findAll({
+      //   attributes: [
+      //     "user_id",
+      //     [
+      //       Sequelize.fn("COUNT", Sequelize.col("userinterest.interest_id")),
+      //       "InterestCount",
+      //     ],
+      //   ],
+      //   where: {
+      //     [Op.and]: [
+      //       { interest_id: arrayInterest },
+      //       { [Op.not]: [{ user_id: userarray }] },
+      //     ],
+      //   },
+      //   group: ["user_id"],
+      //   order: [
+      //     ["InterestCount", "DESC"],
+      //     ["user_id", "ASC"],
+      //   ],
+      //   limit: 5,
+      // });
       return res.json(allReco);
     } catch (err) {
       return res.status(400).json({ error: true, msg: err });
