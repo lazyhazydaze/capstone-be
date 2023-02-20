@@ -40,6 +40,7 @@ class SessionStore {
           username: object.dataValues.user2.username,
           online: object.dataValues.user2.online,
           chatid: object.dataValues.id,
+          profilepic: object.dataValues.user2.profilepic,
         });
       } else {
         filteredarray.push({
@@ -47,6 +48,7 @@ class SessionStore {
           username: object.dataValues.user1.username,
           online: object.dataValues.user1.online,
           chatid: object.dataValues.id,
+          profilepic: object.dataValues.user1.profilepic,
         });
       }
     });

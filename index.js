@@ -31,55 +31,10 @@ const RecommendationsController = require("./controllers/RecoController");
 const db = require("./db/models/index");
 const { user, interest, chatrequest, chat, message, meetup, userinterest } = db;
 
-// Step 4. initializing Controllers -> note the lowercase for the first word
-const usersController = new UsersController(user, interest);
-const userController = new UserController(user);
-const interestsController = new InterestsController(interest);
-const chatsController = new ChatsController(chatrequest, user, chat);
-const meetupsController = new MeetupsController(meetup, chat);
-const profileController = new ProfileController(user);
-const recommendationsController = new RecommendationsController(
-  chat,
-  chatrequest,
-  userinterest
-);
-
-// Step 5.initializing Routers -> note the lowercase for the first word
-const usersRouter = new UsersRouter(usersController).routes();
-const userRouter = new UserRouter(userController).routes();
-const interestsRouter = new InterestsRouter(interestsController).routes();
-const chatsRouter = new ChatsRouter(chatsController).routes();
-const meetupsRouter = new MeetupsRouter(meetupsController).routes();
-const profileRouter = new ProfileRouter(profileController).routes();
-const recommendationsRouter = new RecommendationsRouter(
-  recommendationsController
-).routes();
-
 const PORT = process.env.PORT || 8080;
 const app = express();
-app.use(cors());
-app.use(bodyParser.json({ limit: "5mb" }));
-app.use(bodyParser.urlencoded({ limit: "5mb", extended: true }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-
-// Step 6. using the routers
-app.use("/user", userRouter);
-app.use("/users", usersRouter);
-app.use("/interests", interestsRouter);
-app.use("/chats", chatsRouter);
-app.use("/meetups", meetupsRouter);
-app.use("/profile", profileRouter);
-app.use("/recommendations", recommendationsRouter);
-app.get("*", (req, res) =>
-  res.status(404).json({ errors: { body: ["Not found"] } })
-);
-app.use(errorHandler);
 
 server = http.Server(app);
-server.listen(PORT, () => {
-  console.log(`Express app listening on port ${PORT} yeees!`);
-});
 
 // Step 7. Socket
 const io = socketIO(server, {
@@ -139,6 +94,7 @@ io.on("connection", async (socket) => {
     users.push({
       userID: session.id,
       username: session.username,
+      profilepic: session.profilepic,
       connected: session.online,
       chatid: session.chatid,
       messages: messagesPerUser.get(session.id) || [],
@@ -146,15 +102,6 @@ io.on("connection", async (socket) => {
   });
   console.log(users);
   socket.emit("users", users);
-
-  // notify existing users that this user is online so the status can be updated (red to green colour)
-  socket.broadcast.emit("user connected", {
-    userID: socket.userID,
-    username: socket.username,
-    connected: true,
-    messages: [],
-  });
-
   // this does 2 actions: 1. forward the private message to the right recipient (and to other tabs of the sender) 2. save the message into the db
   socket.on(
     "private message",
@@ -175,14 +122,62 @@ io.on("connection", async (socket) => {
   );
 
   // notify users upon disconnection so the status can change from green to red colour
-  socket.on("disconnect", async () => {
-    const matchingSockets = await io.in(socket.userID).allSockets();
-    const isDisconnected = matchingSockets.size === 0;
-    if (isDisconnected) {
-      // notify other users
-      socket.broadcast.emit("user disconnected", socket.userID);
-      // update the connection status of the session
-      sessionStore.saveSession(socket.userID, false);
-    }
-  });
+  // socket.on("disconnect", async () => {
+  //   const matchingSockets = await io.in(socket.userID).allSockets();
+  //   const isDisconnected = matchingSockets.size === 0;
+  //   if (isDisconnected) {
+  //     // notify other users
+  //     socket.broadcast.emit("user disconnected", socket.userID);
+  //     // update the connection status of the session
+  //     sessionStore.saveSession(socket.userID, false);
+  //   }
+  // });
+});
+
+// Step 4. initializing Controllers -> note the lowercase for the first word
+const usersController = new UsersController(user, interest, io);
+const userController = new UserController(user);
+const interestsController = new InterestsController(interest);
+const chatsController = new ChatsController(chatrequest, user, chat);
+const meetupsController = new MeetupsController(meetup, chat);
+const profileController = new ProfileController(user);
+const recommendationsController = new RecommendationsController(
+  chat,
+  chatrequest,
+  userinterest,
+  user
+);
+
+// Step 5.initializing Routers -> note the lowercase for the first word
+const usersRouter = new UsersRouter(usersController).routes();
+const userRouter = new UserRouter(userController).routes();
+const interestsRouter = new InterestsRouter(interestsController).routes();
+const chatsRouter = new ChatsRouter(chatsController).routes();
+const meetupsRouter = new MeetupsRouter(meetupsController).routes();
+const profileRouter = new ProfileRouter(profileController).routes();
+const recommendationsRouter = new RecommendationsRouter(
+  recommendationsController
+).routes();
+
+app.use(cors());
+app.use(bodyParser.json({ limit: "5mb" }));
+app.use(bodyParser.urlencoded({ limit: "5mb", extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
+// Step 6. using the routers
+app.use("/user", userRouter);
+app.use("/users", usersRouter);
+app.use("/interests", interestsRouter);
+app.use("/chats", chatsRouter);
+app.use("/meetups", meetupsRouter);
+app.use("/profile", profileRouter);
+app.use("/recommendations", recommendationsRouter);
+app.get("*", (req, res) =>
+  res.status(404).json({ errors: { body: ["Not found"] } })
+);
+app.use(errorHandler);
+
+server.listen(PORT, () => {
+  console.log(`Express app listening on port ${PORT} yeees!`);
 });
