@@ -10,9 +10,10 @@ const {
 const BaseController = require("./BaseController");
 
 class UsersController extends BaseController {
-  constructor(model, interestModel) {
+  constructor(model, interestModel, io) {
     super(model);
     this.interestModel = interestModel;
+    this.io = io;
   }
 
   // Register
@@ -83,10 +84,7 @@ class UsersController extends BaseController {
         where: { email: user.email },
       });
 
-      await this.model.update(
-        { online: true },
-        { where: { email: user.email } }
-      );
+      await existentUser.update({ online: true });
 
       if (!existentUser) throw new NotFoundError("Email", "sign in first");
 
@@ -94,7 +92,14 @@ class UsersController extends BaseController {
       if (!pwd) throw new ValidationError("Wrong email/password combination");
 
       existentUser.dataValues.token = await jwtSign(user);
-
+      // notify existing users that this user is online so the status can be updated (red to green colour)
+      console.log("connect", existentUser);
+      this.io.emit("user connected", {
+        userID: existentUser.id,
+        username: existentUser.username,
+        connected: true,
+        messages: [],
+      });
       res.json({ user: existentUser });
     } catch (error) {
       next(error);
@@ -104,12 +109,14 @@ class UsersController extends BaseController {
   async signOut(req, res) {
     try {
       console.log(req.body.email);
-      // update the user's online status to false in the database
-      await this.model.update(
-        { online: false },
-        { where: { email: req.body.email } }
-      );
 
+      const existentUser = await this.model.findOne({
+        where: { email: req.body.email },
+      });
+      // update the user's online status to false in the database
+      const row = await existentUser.update({ online: false });
+      console.log("disconnect", row);
+      this.io.emit("user disconnected", row.id);
       // send a successful response
       res.status(200).send({ message: "Logged out successfully." });
     } catch (error) {
