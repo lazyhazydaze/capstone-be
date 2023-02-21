@@ -78,6 +78,7 @@ class RecoController {
           "gender",
           [Sequelize.fn("COUNT", Sequelize.col("user.id")), "InterestCount"],
           "profilepic",
+          "biography",
         ],
         subQuery: false,
         include: [
@@ -130,7 +131,8 @@ class RecoController {
   }
 
   async getLocationRecommendations(req, res) {
-    const { userid } = req.params;
+    const { userid } = req.query;
+    console.log (userid)
     try {
       const currentUser = await this.userModel.findByPk(userid);
       const currentLocation = currentUser.location;
@@ -175,7 +177,7 @@ class RecoController {
       });
 
       const allReco = await this.userModel.findAll({
-        attributes: ["id", "username", "email", "firstname", "location"],
+        attributes: ["id", "username", "email", "firstname", "location", "profilepic", "gender", "biography"],
         where: {
           [Op.and]: [
             { location: currentLocation },
@@ -184,7 +186,7 @@ class RecoController {
         },
         limit: 5,
       });
-
+      console.log(allReco)
       return res.json(allReco);
     } catch (err) {
       return res.status(400).json({ error: true, msg: err });

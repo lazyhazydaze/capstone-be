@@ -9,6 +9,7 @@ class ChatsController {
 
   async sendSwipe(req, res) {
     const { senderId, recipientId, isRejected } = req.body;
+    console.log(req.body)
     try {
       //Make sure they dont have an existing chat
       const ifChatExist = await this.chatModel.findOne({
