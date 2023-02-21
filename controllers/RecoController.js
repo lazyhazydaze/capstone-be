@@ -21,7 +21,7 @@ class RecoController {
   }
 
   async getInterestRecommendations(req, res) {
-    const { userid } = req.params;
+    const { userid } = req.query;
     try {
       const allInterest = await this.userInterestModel.findAll({
         where: { user_id: userid },
