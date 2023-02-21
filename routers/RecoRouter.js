@@ -10,7 +10,7 @@ class RecoRouter {
 
     // get recommendations for user
     router.get(
-      "/interest/:userid",
+      "/interest",
       this.controller.getInterestRecommendations.bind(this.controller)
     );
 
