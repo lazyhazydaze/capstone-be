@@ -38,6 +38,7 @@ class SessionStore {
         filteredarray.push({
           id: object.dataValues.user2_id,
           username: object.dataValues.user2.username,
+          firstname: object.dataValues.user2.firstname,
           online: object.dataValues.user2.online,
           chatid: object.dataValues.id,
           profilepic: object.dataValues.user2.profilepic,
@@ -46,6 +47,7 @@ class SessionStore {
         filteredarray.push({
           id: object.dataValues.user1_id,
           username: object.dataValues.user1.username,
+          firstname: object.dataValues.user1.firstname,
           online: object.dataValues.user1.online,
           chatid: object.dataValues.id,
           profilepic: object.dataValues.user1.profilepic,

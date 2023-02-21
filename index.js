@@ -94,6 +94,7 @@ io.on("connection", async (socket) => {
     users.push({
       userID: session.id,
       username: session.username,
+      firstname: session.firstname,
       profilepic: session.profilepic,
       connected: session.online,
       chatid: session.chatid,
@@ -139,7 +140,7 @@ const usersController = new UsersController(user, interest, io);
 const userController = new UserController(user);
 const interestsController = new InterestsController(interest);
 const chatsController = new ChatsController(chatrequest, user, chat);
-const meetupsController = new MeetupsController(meetup, chat);
+const meetupsController = new MeetupsController(meetup, chat, user);
 const profileController = new ProfileController(user);
 const recommendationsController = new RecommendationsController(
   chat,

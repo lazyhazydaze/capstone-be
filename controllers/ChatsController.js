@@ -15,7 +15,7 @@ class ChatsController {
         where: {
           [Op.or]: [
             { user1_id: senderId, user2_id: recipientId },
-            { user2_id: recipientId, user1_id: senderId },
+            { user1_id: recipientId, user2_id: senderId },
           ],
         },
       });

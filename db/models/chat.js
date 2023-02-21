@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "chatroom_id",
       });
       this.hasMany(models.meetup, {
-        as: "chat",
+        as: "meetup",
         foreignKey: "chat_id",
       });
     }

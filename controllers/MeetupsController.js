@@ -2,9 +2,10 @@ const BaseController = require("./BaseController");
 const { Op } = require("sequelize");
 
 class MeeetupsController extends BaseController {
-  constructor(model, chatModel) {
+  constructor(model, chatModel, userModel) {
     super(model);
     this.chatModel = chatModel;
+    this.userModel = userModel;
   }
 
   // create a meetup
@@ -30,8 +31,7 @@ class MeeetupsController extends BaseController {
     }
   }
 
-  // retrieve all confirmed meetups of the selected user to be displayed
-  async getAllMeetupsUser(req, res) {
+  async getAllConfirmed(req, res) {
     const { userId } = req.params;
 
     try {
@@ -45,6 +45,58 @@ class MeeetupsController extends BaseController {
       });
 
       return res.json(meetups);
+    } catch (err) {
+      return res.status(400).json({ error: true, msg: err });
+    }
+  }
+
+  // retrieve all confirmed meetups of the selected user to be displayed
+  async getAllMeetupsByUser1(req, res) {
+    const { userId } = req.params;
+    try {
+      const allChats = await this.chatModel.findAll({
+        where: {
+          [Op.or]: [{ user1_id: userId }, { user2_id: userId }],
+        },
+      });
+      const arrayChats = allChats.map(({ id }) => id);
+      // console.log(arrayChats); //[5,6,7,8,9]
+
+      const allMeetups = await this.model.findAll({
+        where: { chat_id: arrayChats },
+        include: {
+          model: this.userModel,
+          as: "author",
+        },
+      });
+
+      return res.json(allMeetups);
+    } catch (err) {
+      return res.status(400).json({ error: true, msg: err });
+    }
+  }
+  //test
+  async getAllMeetupsByUser(req, res) {
+    const { userId } = req.params;
+    try {
+      const allMeetups = await this.model.findAll({
+        // where: { chat_id: arrayChats },
+        include: [
+          {
+            model: this.chatModel,
+            as: "chat",
+            where: {
+              [Op.or]: [{ user1_id: userId }, { user2_id: userId }],
+            },
+            include: [
+              { model: this.userModel, as: "user1", attributes: ["firstname"] },
+              { model: this.userModel, as: "user2", attributes: ["firstname"] },
+            ],
+          },
+          { model: this.userModel, as: "author", attributes: ["firstname"] },
+        ],
+      });
+      return res.json(allMeetups);
     } catch (err) {
       return res.status(400).json({ error: true, msg: err });
     }
