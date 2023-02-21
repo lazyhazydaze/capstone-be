@@ -15,7 +15,7 @@ class RecoRouter {
     );
 
     router.get(
-      "/location/:userid",
+      "/location",
       this.controller.getLocationRecommendations.bind(this.controller)
     );
 
