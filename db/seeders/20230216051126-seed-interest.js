@@ -7,13 +7,25 @@ module.exports = {
       "interests",
       [
         {
-          name: "Basketball",
-        },
-        {
           name: "Leetcode",
         },
         {
-          name: "Chess",
+          name: "Basketball",
+        },
+        {
+          name: "Valorant",
+        },
+        {
+          name: "Apex Legends",
+        },
+        {
+          name: "CSS",
+        },
+        {
+          name: "Painting",
+        },
+        {
+          name: "Food Adventures",
         },
         {
           name: "Table Tennis",

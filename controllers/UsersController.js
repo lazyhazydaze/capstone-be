@@ -84,9 +84,11 @@ class UsersController extends BaseController {
         where: { email: user.email },
       });
 
-      await existentUser.update({ online: true });
-
-      if (!existentUser) throw new NotFoundError("Email", "sign in first");
+      if (existentUser) {
+        await existentUser.update({ online: true });
+      }
+      
+      if (!existentUser) throw new NotFoundError("Email", "Try signing up first");
 
       const pwd = await bcryptCompare(user.password, existentUser.password);
       if (!pwd) throw new ValidationError("Wrong email/password combination");

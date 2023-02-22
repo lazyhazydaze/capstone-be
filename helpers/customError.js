@@ -12,7 +12,7 @@ class ForbiddenError extends MyError {
 }
 class NotFoundError extends MyError {
   constructor(property, message = "") {
-    super(`${property} not found ${message}`);
+    super(`${property} not found. ${message}.`);
   }
 }
 class UnauthorizedError extends MyError {
