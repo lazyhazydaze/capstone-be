@@ -50,32 +50,6 @@ class MeeetupsController extends BaseController {
     }
   }
 
-  // retrieve all confirmed meetups of the selected user to be displayed
-  async getAllMeetupsByUser1(req, res) {
-    const { userId } = req.params;
-    try {
-      const allChats = await this.chatModel.findAll({
-        where: {
-          [Op.or]: [{ user1_id: userId }, { user2_id: userId }],
-        },
-      });
-      const arrayChats = allChats.map(({ id }) => id);
-      // console.log(arrayChats); //[5,6,7,8,9]
-
-      const allMeetups = await this.model.findAll({
-        where: { chat_id: arrayChats },
-        include: {
-          model: this.userModel,
-          as: "author",
-        },
-      });
-
-      return res.json(allMeetups);
-    } catch (err) {
-      return res.status(400).json({ error: true, msg: err });
-    }
-  }
-  //test
   async getAllMeetupsByUser(req, res) {
     const { userId } = req.params;
     try {
