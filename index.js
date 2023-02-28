@@ -106,12 +106,13 @@ io.on("connection", async (socket) => {
   // this does 2 actions: 1. forward the private message to the right recipient (and to other tabs of the sender) 2. save the message into the db
   socket.on(
     "private message",
-    async ({ content, to_id, from_id, chatroom_id }) => {
+    async ({ content, to_id, from_id, chatroom_id, createdAt }) => {
       const message = {
         content,
         from_id,
         to_id,
         chatroom_id,
+        createdAt,
       };
       messageStore.saveMessage(message);
       console.log("to id", message.to_id, " and from id", message.from_id);
