@@ -6,16 +6,17 @@ class ChatsRouter {
     this.controller = controller;
   }
   routes() {
-    router.post(
-      "/swipe",
-      this.controller.sendSwipe.bind(this.controller)
-    );
+    router.post("/swipe", this.controller.sendSwipe.bind(this.controller));
 
     router.post(
       "/request",
       this.controller.sendChatRequest.bind(this.controller)
     );
 
+    router.get(
+      "/room/:chatId",
+      this.controller.getOneChat.bind(this.controller)
+    );
 
     router.get(
       "/requests-sent/sender/:senderId",

@@ -9,7 +9,7 @@ class ChatsController {
 
   async sendSwipe(req, res) {
     const { senderId, recipientId, isRejected } = req.body;
-    console.log(req.body)
+    console.log(req.body);
     try {
       //Make sure they dont have an existing chat
       const ifChatExist = await this.chatModel.findOne({
@@ -213,6 +213,22 @@ class ChatsController {
       if (output) {
         await output.destroy(); // deletes the row
       }
+      return res.json(output);
+    } catch (err) {
+      console.log(err);
+      return res.status(400).json({ error: true, msg: err });
+    }
+  }
+
+  async getOneChat(req, res) {
+    const { chatId } = req.params;
+    try {
+      const output = await this.chatModel.findByPk(chatId, {
+        include: [
+          { model: this.userModel, as: "user1" },
+          { model: this.userModel, as: "user2" },
+        ],
+      });
       return res.json(output);
     } catch (err) {
       console.log(err);
