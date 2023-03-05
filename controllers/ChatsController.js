@@ -1,10 +1,11 @@
 const { Op } = require("sequelize");
 
 class ChatsController {
-  constructor(model, userModel, chatModel) {
+  constructor(model, userModel, chatModel, io) {
     this.model = model;
     this.userModel = userModel;
     this.chatModel = chatModel;
+    this.io = io;
   }
 
   async sendSwipe(req, res) {
@@ -97,6 +98,31 @@ class ChatsController {
             title: "Helloworld",
             updated_at: new Date(),
             created_at: new Date(),
+          });
+
+          const newChat1 = await this.chatModel.findByPk(newChat.id, {
+            include: [
+              { model: this.userModel, as: "user1" },
+              { model: this.userModel, as: "user2" },
+            ],
+          });
+          this.io.to(String(newChat1.user1_id)).emit("New Friend", {
+            userID: newChat1.user2_id,
+            username: newChat1.user2.username,
+            firstname: newChat1.user2.firstname,
+            profilepic: newChat1.user2.profilepic,
+            connected: newChat1.user2.online,
+            chatid: newChat1.id,
+            messages: [],
+          });
+          this.io.to(String(newChat1.user2_id)).emit("New Friend", {
+            userID: newChat1.user1_id,
+            username: newChat1.user1.username,
+            firstname: newChat1.user1.firstname,
+            profilepic: newChat1.user1.profilepic,
+            connected: newChat1.user1.online,
+            chatid: newChat1.id,
+            messages: [],
           });
           return res.json(newChat);
         }
