@@ -251,8 +251,16 @@ class ChatsController {
     try {
       const output = await this.chatModel.findByPk(chatId, {
         include: [
-          { model: this.userModel, as: "user1" },
-          { model: this.userModel, as: "user2" },
+          {
+            model: this.userModel,
+            as: "user1",
+            attributes: ["firstname", "profilepic"],
+          },
+          {
+            model: this.userModel,
+            as: "user2",
+            attributes: ["firstname", "profilepic"],
+          },
         ],
       });
       return res.json(output);
