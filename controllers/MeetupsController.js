@@ -31,24 +31,24 @@ class MeeetupsController extends BaseController {
     }
   }
 
-  async getAllConfirmed(req, res) {
-    const { userId } = req.params;
+  // async getAllConfirmed(req, res) {
+  //   const { userId } = req.params;
 
-    try {
-      const meetups = await this.model.findAll({
-        include: {
-          model: this.chatModel,
-          as: "chat",
-          where: { [Op.or]: [{ user1_id: userId }, { user2_id: userId }] },
-        },
-        where: { accepted: true },
-      });
+  //   try {
+  //     const meetups = await this.model.findAll({
+  //       include: {
+  //         model: this.chatModel,
+  //         as: "chat",
+  //         where: { [Op.or]: [{ user1_id: userId }, { user2_id: userId }] },
+  //       },
+  //       where: { accepted: true },
+  //     });
 
-      return res.json(meetups);
-    } catch (err) {
-      return res.status(400).json({ error: true, msg: err });
-    }
-  }
+  //     return res.json(meetups);
+  //   } catch (err) {
+  //     return res.status(400).json({ error: true, msg: err });
+  //   }
+  // }
 
   async getAllMeetupsByUser(req, res) {
     const { userId } = req.params;
@@ -69,6 +69,7 @@ class MeeetupsController extends BaseController {
           },
           { model: this.userModel, as: "author", attributes: ["firstname"] },
         ],
+        order: [["datetime", "DESC"]],
       });
       return res.json(allMeetups);
     } catch (err) {

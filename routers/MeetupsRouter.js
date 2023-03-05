@@ -19,11 +19,6 @@ class MeetupsRouter {
     );
 
     router.get(
-      "/user/confirmed/:userId",
-      this.controller.getAllConfirmed.bind(this.controller)
-    );
-
-    router.get(
       "/user/:userId",
       this.controller.getAllMeetupsByUser.bind(this.controller)
     );
