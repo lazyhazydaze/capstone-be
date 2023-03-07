@@ -6,11 +6,18 @@ class ChatsController {
     this.userModel = userModel;
     this.chatModel = chatModel;
     this.io = io;
+    this.senderid = new Set();
   }
 
   async sendSwipe(req, res) {
     const { senderId, recipientId, isRejected } = req.body;
     console.log(req.body);
+    console.log(this.senderid);
+    if (this.senderid.has(senderId)) {
+      return res.status(400).json({ error: true, msg: "request pending" });
+    } else {
+      this.senderid.add(senderId);
+    }
     try {
       //Make sure they dont have an existing chat
       const ifChatExist = await this.chatModel.findOne({
@@ -22,6 +29,7 @@ class ChatsController {
         },
       });
       if (ifChatExist) {
+        this.senderid.delete(senderId);
         return res.json(ifChatExist);
       }
 
@@ -40,6 +48,7 @@ class ChatsController {
             is_rejected: true,
             updated_at: new Date(),
           });
+          this.senderid.delete(senderId);
           return res.json(response);
         }
         const response = await this.model.create({
@@ -50,6 +59,7 @@ class ChatsController {
           created_at: new Date(),
         });
 
+        this.senderid.delete(senderId);
         return res.json(response);
       }
       //isRejected = false
@@ -71,6 +81,7 @@ class ChatsController {
           },
         });
         if (ifOtherPartyOrMeReject) {
+          this.senderid.delete(senderId);
           return res.json(ifOtherPartyOrMeReject);
         }
         const didISendARequest = await this.model.findOne({
@@ -81,6 +92,7 @@ class ChatsController {
           },
         });
         if (didISendARequest) {
+          this.senderid.delete(senderId);
           return res.json(didISendARequest);
         }
         const didOtherPartySendARequest = await this.model.findOne({
@@ -124,6 +136,7 @@ class ChatsController {
             chatid: newChat1.id,
             messages: [],
           });
+          this.senderid.delete(senderId);
           return res.json(newChat);
         }
         const response = await this.model.create({
@@ -133,9 +146,11 @@ class ChatsController {
           updated_at: new Date(),
           created_at: new Date(),
         });
+        this.senderid.delete(senderId);
         return res.json(response);
       }
     } catch (err) {
+      this.senderid.delete(senderId);
       return res.status(400).json({ error: true, msg: err });
     }
   }
@@ -254,12 +269,12 @@ class ChatsController {
           {
             model: this.userModel,
             as: "user1",
-            attributes: ["firstname", "profilepic"],
+            attributes: ["firstname", "profilepic", "id"],
           },
           {
             model: this.userModel,
             as: "user2",
-            attributes: ["firstname", "profilepic"],
+            attributes: ["firstname", "profilepic", "id"],
           },
         ],
       });
