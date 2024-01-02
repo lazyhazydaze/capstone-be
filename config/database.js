@@ -9,3 +9,5 @@ module.exports = {
     dialect: process.env.DB_DIALECT,
   },
 };
+
+// npx sequeliseed generate users interests chatrequests chats messages meetups userinterests --config
